@@ -19,12 +19,13 @@ import 'home.dart';
 // }
 
 void main() {
-  runApp(
-    ChangeNotifierProvider(
+  runApp(RootRestorationScope(
+    restorationId: 'root',
+    child: ChangeNotifierProvider(
       create: (context) => StateProvider(),
       child: const MyApp(),
     ),
-  );
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -38,11 +39,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        initialRoute: Provider.of<StateProvider>(context, listen: false)
-                .connector
-                .connected
-            ? 'home'
-            : 'login',
+        initialRoute: 'login',
         routes: {
           'login': (context) => const Login(title: 'Login'),
           'home': (context) => const Home(title: 'Home Page'),
