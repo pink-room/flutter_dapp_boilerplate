@@ -16,7 +16,7 @@ class StateProvider extends ChangeNotifier {
   //     ],
   //   ),
   // );
-  // String walletAddress = '';
+  String walletAddress = '';
 
   Future<void> login(context) async {
     // // Subscribe to events

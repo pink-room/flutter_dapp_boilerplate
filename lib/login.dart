@@ -1,6 +1,4 @@
 // ignore_for_file: use_full_hex_values_for_flutter_colors
-
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dapp_boilerplate/providers/stateprovider.dart';
 import 'package:provider/provider.dart';
@@ -26,7 +24,6 @@ class _LoginState extends State<Login> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
         toolbarHeight: 0,
         backgroundColor: const Color(0xFF333138),
       ),
@@ -50,11 +47,11 @@ class _LoginState extends State<Login> {
                 ),
                 width: double.infinity,
                 child: Column(
-                  children: <Widget>[
+                  children: [
                     Container(
                       margin: const EdgeInsets.only(top: 24),
                       child: Column(
-                        children: <Widget>[
+                        children: [
                           const Text(
                             'Welcome to',
                             style: TextStyle(color: Colors.white, fontSize: 24),
