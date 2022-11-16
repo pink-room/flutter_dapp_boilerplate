@@ -46,7 +46,7 @@ class _HomeState extends State<Home> {
                           ),
                           Text(
                             Provider.of<StateProvider>(context, listen: false)
-                                .walletAddress,
+                                .account,
                             style: const TextStyle(
                                 color: Colors.white, fontSize: 18),
                           ),

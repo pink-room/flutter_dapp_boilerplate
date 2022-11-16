@@ -13,14 +13,6 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   @override
-  void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      Provider.of<StateProvider>(context, listen: false).logout(context);
-    });
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
