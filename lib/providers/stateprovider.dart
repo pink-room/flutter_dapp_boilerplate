@@ -6,26 +6,31 @@ import 'package:walletconnect_dart/walletconnect_dart.dart';
 // import 'package:web3_connect/src/wallet_connect.dart';
 class StateProvider extends ChangeNotifier {
   String account = '';
-  final WalletConnect connector = WalletConnect(
-    bridge: 'https://bridge.walletconnect.org',
-    clientMeta: const PeerMeta(
-      name: 'WalletConnect',
-      description: 'WalletConnect Developer App',
-      url: 'https://walletconnect.org',
-      icons: [
-        'https://gblobscdn.gitbook.com/spaces%2F-LJJeCjcLrr53DcT1Ml7%2Favatar.png?alt=media'
-      ],
-    ),
-  );
+  late WalletConnect connector;
   late SessionStatus? session;
 
   Future<void> login(context) async {
+    connector = WalletConnect(
+      bridge: 'https://bridge.walletconnect.org',
+      clientMeta: const PeerMeta(
+        name: 'WalletConnect',
+        description: 'WalletConnect Developer App',
+        url: 'https://walletconnect.org',
+        icons: [
+          'https://gblobscdn.gitbook.com/spaces%2F-LJJeCjcLrr53DcT1Ml7%2Favatar.png?alt=media'
+        ],
+      ),
+    );
+
     connector.on('connect', (session) {
       print(session);
       Navigator.of(context).pushNamed('home');
     });
     connector.on('session_update', (payload) => print(payload));
-    connector.on('disconnect', (session) => print(session));
+    connector.on('disconnect', (session) {
+      print(session);
+      Navigator.of(context).pushNamed('login');
+    });
 
     if (!connector.connected) {
       session = await connector.createSession(
@@ -33,7 +38,6 @@ class StateProvider extends ChangeNotifier {
     }
     account = session!.accounts[0];
     if (account != "") {
-      Navigator.of(context).pushNamed('home');
       //final client = Web3Client(rpcUrl, Client());
       //yourContract = YourContract(address: contractAddr, client: client);
     }
