@@ -3,11 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:walletconnect_dart/walletconnect_dart.dart';
 
-// import 'package:web3_connect/src/wallet_connect.dart';
+import 'package:http/http.dart';
+import 'package:web3dart/web3dart.dart';
+import 'package:flutter/services.dart';
+
 class StateProvider extends ChangeNotifier {
+  static const CONTRACT_ADDRESS = '0x996E04787e1430f4466fE6555a3a5F01879C6897';
   String account = '';
   late WalletConnect connector;
   late SessionStatus? session;
+
+  late Client httpClient;
+  late Web3Client ethClient;
 
   Future<void> login(context) async {
     connector = WalletConnect(
@@ -47,4 +54,42 @@ class StateProvider extends ChangeNotifier {
     await connector.killSession();
     Navigator.of(context).pop();
   }
+
+  void initWeb3() {
+    httpClient = Client();
+    ethClient = Web3Client(
+        "https://goerli.infura.io/v3/7ff7faedb05b4946a5af0faab118dea9",
+        httpClient);
+  }
+
+  Future<DeployedContract> loadContract() async {
+    String abiCode =
+        await rootBundle.loadString("contracts/PeanutButterFactory.json");
+    final contract = DeployedContract(ContractAbi.fromJson(abiCode, "MetaCoin"),
+        EthereumAddress.fromHex(CONTRACT_ADDRESS));
+    return contract;
+  }
+
+  Future<List<dynamic>> getJars() async {
+    final contract = await loadContract();
+    final ethFunction = contract.function('getJars');
+    return await ethClient
+        .call(contract: contract, function: ethFunction, params: []);
+  }
+
+  // Future<String> submit(String functionName, List<dynamic> args) async {
+  //   DeployedContract contract = await loadContract();
+
+  //   final ethFunction = contract.function(functionName);
+
+  // var result = await provider.sendTransaction(
+  //   credentials,
+  //   Transaction.callContract(
+  //     contract: contract,
+  //     function: ethFunction,
+  //     parameters: args,
+  //   ),
+  // );
+  // return result;
+  // }
 }
