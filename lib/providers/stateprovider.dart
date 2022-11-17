@@ -11,6 +11,7 @@ class StateProvider extends ChangeNotifier {
   static const CONTRACT_ADDRESS = '0x996E04787e1430f4466fE6555a3a5F01879C6897';
   String account = '';
   late WalletConnect connector;
+  late EthereumWalletConnectProvider provider;
   late SessionStatus? session;
 
   late Client httpClient;
@@ -56,6 +57,7 @@ class StateProvider extends ChangeNotifier {
   }
 
   void initWeb3() {
+    provider = EthereumWalletConnectProvider(connector, chainId: 5);
     httpClient = Client();
     ethClient = Web3Client(
         "https://goerli.infura.io/v3/7ff7faedb05b4946a5af0faab118dea9",
@@ -77,19 +79,26 @@ class StateProvider extends ChangeNotifier {
         .call(contract: contract, function: ethFunction, params: []);
   }
 
-  // Future<String> submit(String functionName, List<dynamic> args) async {
+  Future<List<dynamic>> getIngredients() async {
+    final contract = await loadContract();
+    final ethFunction = contract.function('getExtraIngredients');
+    return await ethClient
+        .call(contract: contract, function: ethFunction, params: []);
+  }
+
+  // Future<String> createJar() async {
   //   DeployedContract contract = await loadContract();
 
-  //   final ethFunction = contract.function(functionName);
+  //   final ethFunction = contract.function('create');
 
-  // var result = await provider.sendTransaction(
-  //   credentials,
-  //   Transaction.callContract(
-  //     contract: contract,
-  //     function: ethFunction,
-  //     parameters: args,
-  //   ),
-  // );
-  // return result;
+  //   var result = await provider.sendTransaction(
+  //     from: account,
+  //     Transaction.callContract(
+  //       contract: contract,
+  //       function: ethFunction,
+  //       parameters: args,
+  //     ),
+  //   );
+  //   return result;
   // }
 }

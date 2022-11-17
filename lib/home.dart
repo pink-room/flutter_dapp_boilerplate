@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dapp_boilerplate/providers/stateprovider.dart';
 import 'package:provider/provider.dart';
 import 'package:web3dart/web3dart.dart';
+import 'package:flutter_material_pickers/flutter_material_pickers.dart';
+import 'dart:math';
 
 class ParsedJar {
   ParsedJar(this.extraIngredient, this.paidValue, this.creator);
-  String extraIngredient;
-  String paidValue;
-  String creator;
+  final String extraIngredient;
+  final String paidValue;
+  final String creator;
 }
 
 class Home extends StatefulWidget {
@@ -20,6 +22,8 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   List<ParsedJar> jars = [];
+  List<String> extraIngredients = [];
+  String selectedIngredient = '';
 
   parseExtraIngredients(extraIngredients) {
     var splittedIngredients = extraIngredients
@@ -41,10 +45,25 @@ class _HomeState extends State<Home> {
     });
   }
 
+  List<String> toStringList(List<dynamic> data) {
+    List<String> value = <String>[];
+    for (var element in data) {
+      value.add(element);
+    }
+    return value;
+  }
+
   @override
   initState() {
     super.initState();
     Provider.of<StateProvider>(context, listen: false).initWeb3();
+    Provider.of<StateProvider>(context, listen: false)
+        .getIngredients()
+        .then((value) {
+      setState(() {
+        extraIngredients = toStringList(value[0]);
+      });
+    });
   }
 
   @override
@@ -171,6 +190,20 @@ class _HomeState extends State<Home> {
                                     Offset(0, 3), // changes position of shadow
                               ),
                             ],
+                          ),
+                          child: OutlinedButton(
+                            // style: ,
+                            onPressed: () => showMaterialScrollPicker<String>(
+                              context: context,
+                              title: 'Pick Your Ingredient',
+                              items: extraIngredients,
+                              selectedItem: selectedIngredient,
+                              onChanged: (value) =>
+                                  setState(() => selectedIngredient = value),
+                            ),
+                            child: Text(selectedIngredient != ''
+                                ? selectedIngredient
+                                : 'Select Extra Engredient'),
                           )),
                     ],
                   ),
@@ -178,7 +211,6 @@ class _HomeState extends State<Home> {
                     margin: const EdgeInsets.all(16.0),
                     width: screenWidth,
                     height: screenHeight * 0.45,
-                    decoration: const BoxDecoration(color: Colors.red),
                     child: jars.isNotEmpty
                         ? ListView.builder(
                             // Let the ListView know how many items it needs to build.
@@ -188,10 +220,22 @@ class _HomeState extends State<Home> {
                             itemBuilder: (context, index) {
                               final item = jars[index];
                               return ListTile(
-                                title: Text(item.extraIngredient),
-                                subtitle: Text(item.paidValue.toString()),
-                                // subtitle: item,
-                              );
+                                  leading: Container(
+                                    margin: const EdgeInsets.only(right: 4.0),
+                                    width: 12,
+                                    height: 24,
+                                    decoration: BoxDecoration(
+                                        borderRadius: const BorderRadius.all(
+                                            Radius.circular(6.0)),
+                                        color: Color((Random().nextDouble() *
+                                                    0xFFFFFF)
+                                                .toInt())
+                                            .withOpacity(1.0)),
+                                  ),
+                                  title: Text(item.extraIngredient),
+                                  subtitle: Text(
+                                      '${item.paidValue}\n${item.creator}'),
+                                  isThreeLine: true);
                             },
                           )
                         : null,
