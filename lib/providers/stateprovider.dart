@@ -86,19 +86,19 @@ class StateProvider extends ChangeNotifier {
         .call(contract: contract, function: ethFunction, params: []);
   }
 
-  // Future<String> createJar() async {
-  //   DeployedContract contract = await loadContract();
+  Future<String> createJar(selectedIngredient) async {
+    DeployedContract contract = await loadContract();
 
-  //   final ethFunction = contract.function('create');
+    final ethFunction = contract.function('create');
 
-  //   var result = await provider.sendTransaction(
-  //     from: account,
-  //     Transaction.callContract(
-  //       contract: contract,
-  //       function: ethFunction,
-  //       parameters: args,
-  //     ),
-  //   );
-  //   return result;
-  // }
+    var result = await provider.sendTransaction(
+      from: account,
+      // Transaction.callContract(
+      //   contract: contract,
+      //   function: ethFunction,
+      //   parameters: args,
+      // ),
+    );
+    return result;
+  }
 }

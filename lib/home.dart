@@ -25,6 +25,10 @@ class _HomeState extends State<Home> {
   List<String> extraIngredients = [];
   String selectedIngredient = '';
 
+  String shortenAddress(address) {
+    return '${address.substring(0, 6)}...${address.substring(address.length - 4, address.length)}';
+  }
+
   parseExtraIngredients(extraIngredients) {
     var splittedIngredients = extraIngredients
         .split(',')
@@ -62,6 +66,7 @@ class _HomeState extends State<Home> {
         .then((value) {
       setState(() {
         extraIngredients = toStringList(value[0]);
+        selectedIngredient = value[0][0];
       });
     });
   }
@@ -101,8 +106,9 @@ class _HomeState extends State<Home> {
                                 fontSize: 18),
                           ),
                           Text(
-                            Provider.of<StateProvider>(context, listen: false)
-                                .account,
+                            shortenAddress(Provider.of<StateProvider>(context,
+                                    listen: false)
+                                .account),
                             style: const TextStyle(
                                 color: Colors.white, fontSize: 18),
                           ),
@@ -171,40 +177,43 @@ class _HomeState extends State<Home> {
                               Provider.of<StateProvider>(context, listen: false)
                                   .getJars()
                                   .then((value) => setJars(value)),
-                          child: const Text('get jars'),
+                          child: const Text('Get Jars'),
                         ),
                       ),
                       Container(
-                          margin: const EdgeInsets.all(16.0),
-                          height: screenWidth * 0.4,
-                          width: screenWidth * 0.4,
-                          decoration: const BoxDecoration(
-                            borderRadius: BorderRadius.all(Radius.circular(16)),
-                            color: Color(0xFFe7a61a),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Color(0x11000000),
-                                spreadRadius: 1,
-                                blurRadius: 2,
-                                offset:
-                                    Offset(0, 3), // changes position of shadow
-                              ),
-                            ],
-                          ),
-                          child: OutlinedButton(
-                            // style: ,
-                            onPressed: () => showMaterialScrollPicker<String>(
-                              context: context,
-                              title: 'Pick Your Ingredient',
-                              items: extraIngredients,
-                              selectedItem: selectedIngredient,
-                              onChanged: (value) =>
-                                  setState(() => selectedIngredient = value),
+                        margin: const EdgeInsets.all(16.0),
+                        height: screenWidth * 0.4,
+                        width: screenWidth * 0.4,
+                        decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(16)),
+                          color: Color(0xFFe7a61a),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Color(0x11000000),
+                              spreadRadius: 1,
+                              blurRadius: 2,
+                              offset:
+                                  Offset(0, 3), // changes position of shadow
                             ),
-                            child: Text(selectedIngredient != ''
-                                ? selectedIngredient
-                                : 'Select Extra Engredient'),
-                          )),
+                          ],
+                        ),
+                        child: TextButton(
+                            onPressed: () => showMaterialScrollPicker<String>(
+                                  context: context,
+                                  title: 'Pick Your Ingredient',
+                                  items: extraIngredients,
+                                  selectedItem: selectedIngredient,
+                                  confirmText: 'Create this Jar',
+                                  cancelText: 'Cancel',
+                                  onChanged: (value) {
+                                    setState(() => selectedIngredient = value);
+                                    Provider.of<StateProvider>(context,
+                                            listen: false)
+                                        .createJar(selectedIngredient);
+                                  },
+                                ),
+                            child: const Text('Create Jar')),
+                      )
                     ],
                   ),
                   Container(
@@ -222,8 +231,8 @@ class _HomeState extends State<Home> {
                               return ListTile(
                                   leading: Container(
                                     margin: const EdgeInsets.only(right: 4.0),
-                                    width: 12,
-                                    height: 24,
+                                    width: 24,
+                                    height: 48,
                                     decoration: BoxDecoration(
                                         borderRadius: const BorderRadius.all(
                                             Radius.circular(6.0)),
@@ -234,7 +243,7 @@ class _HomeState extends State<Home> {
                                   ),
                                   title: Text(item.extraIngredient),
                                   subtitle: Text(
-                                      '${item.paidValue}\n${item.creator}'),
+                                      '${item.paidValue}\n${shortenAddress(item.creator)}'),
                                   isThreeLine: true);
                             },
                           )
