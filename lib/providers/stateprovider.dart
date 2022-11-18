@@ -7,8 +7,13 @@ import 'package:http/http.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:flutter/services.dart';
 
+import 'package:device_apps/device_apps.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'dart:io' show Platform;
+import 'package:android_intent/android_intent.dart';
+
 class StateProvider extends ChangeNotifier {
-  static const CONTRACT_ADDRESS = '0x996E04787e1430f4466fE6555a3a5F01879C6897';
+  static const contractAddress = '0x996E04787e1430f4466fE6555a3a5F01879C6897';
   String account = '';
   late WalletConnect connector;
   late EthereumWalletConnectProvider provider;
@@ -68,7 +73,7 @@ class StateProvider extends ChangeNotifier {
     String abiCode =
         await rootBundle.loadString("contracts/PeanutButterFactory.json");
     final contract = DeployedContract(ContractAbi.fromJson(abiCode, "MetaCoin"),
-        EthereumAddress.fromHex(CONTRACT_ADDRESS));
+        EthereumAddress.fromHex(contractAddress));
     return contract;
   }
 
@@ -91,14 +96,36 @@ class StateProvider extends ChangeNotifier {
 
     final ethFunction = contract.function('create');
 
+    var tx = Transaction.callContract(
+      contract: contract,
+      function: ethFunction,
+      parameters: [
+        [selectedIngredient]
+      ],
+    );
+
+    openWalletConnect();
     var result = await provider.sendTransaction(
       from: account,
-      // Transaction.callContract(
-      //   contract: contract,
-      //   function: ethFunction,
-      //   parameters: args,
-      // ),
+      to: tx.to.toString(),
+      value: BigInt.from(1000000000000000),
+      data: tx.data,
     );
+    print(result);
     return result;
+  }
+
+  openWalletConnect() async {
+    if (Platform.isAndroid) {
+      AndroidIntent intent =
+          const AndroidIntent(action: 'action_view', data: 'wc://');
+      await intent.launch();
+    } else {
+      if (await canLaunchUrl(Uri(scheme: 'wc'))) {
+        await launchUrl(Uri(scheme: 'wc'));
+      } else {
+        throw 'Could not launch wc://';
+      }
+    }
   }
 }
